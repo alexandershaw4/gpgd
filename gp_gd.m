@@ -60,9 +60,17 @@ for i = 1:N
     % Sample from predicted Gaussian window
     sfun  = @(v) fun(x0 - (s)*v);
     [X,F] = opt_sample_gauss(sfun,b,vb*vb',y,10);
-    
+
+    % check magnitude of update; solve step length
+    %bi  = @(dx,x,red) (1 - spm_Ncdf(0,abs(dx-x),red)).*dx;
+    %px  = bi(b,x0,diag(vb*vb'));
+
+    magobj = @(umag) f(x0 - umag * X);
+    OX     = fminsearch(magobj,s);
+    dx     = x0 - OX * X;
+
     % Compute actual step
-    dx = x0 - (s)*X;
+    %dx = x0 - (s)*X;
     
     % Compare
     if f(dx) < f(x0)
